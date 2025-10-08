@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from data.api import get_news_data
 from data.stockdata import get_stock_data
-from data.preprocessing import process_sentiment_data, combine_data, prepare_sentiment_for_forecast
+from data.preprocessing import process_sentiment_data, combine_data
 from models.forecasting import fit_and_forecast
 from visualisation.plots import create_plot
 from utils.helpers import calc_correlation, safe_utc_localize
@@ -26,7 +26,7 @@ if run_button:
 
         articles_df = news_data["articles"]
 
-        st.write("🔍 DEBUG: Article-level Sentiment Sample")
+        print("🔍 DEBUG: Article-level Sentiment Sample")
         if not articles_df.empty:
             show_cols = []
             for c in ["Date", "Title", "sentiment", "sentiment_score"]:
@@ -45,7 +45,7 @@ if run_button:
         if "DateOnly" in result_df.columns:
             result_df["DateOnly"] = pd.to_datetime(result_df["DateOnly"], errors="coerce").dt.floor("D")
 
-        st.write("🔍 DEBUG: Processed Daily Sentiment")
+        print("🔍 DEBUG: Processed Daily Sentiment")
         st.dataframe(result_df.head(15))
 
         if result_df is None or result_df.empty:
@@ -65,7 +65,7 @@ if run_button:
 
         # ---------- Fetch stock data ----------
         stock_data = get_stock_data(ticker, start_date_val, end_date_val)
-        st.write("🔍 DEBUG: Stock Data Sample")
+        print("🔍 DEBUG: Stock Data Sample")
         st.dataframe(stock_data.head(10))
 
         # ---------- Merge stock & sentiment ----------
@@ -81,9 +81,9 @@ if run_button:
             st.error("❌ Merged DataFrame is empty. Check stock/sentiment overlap.")
             st.stop()
 
-        st.write("🔍 DEBUG: Combined Data Sample (check columns)")
+        print("🔍 DEBUG: Combined Data Sample (check columns)")
         st.dataframe(combined_df.head(15))
-        st.write("Columns:", combined_df.columns.tolist())
+        print("Columns:", combined_df.columns.tolist())
 
         # Quick sanity checks:
         if "Pct_Change" not in combined_df.columns:
@@ -92,7 +92,7 @@ if run_button:
                 combined_df["Pct_Change"] = combined_df["Close"].pct_change() * 100.0
 
         # Check ranges
-        st.write("🔍 Range check:")
+        print("🔍 Range check:")
         st.write("sentiment_score range:", combined_df["sentiment_score"].min(), combined_df["sentiment_score"].max())
         if "Pct_Change" in combined_df.columns:
             st.write("Pct_Change range:", combined_df["Pct_Change"].min(), combined_df["Pct_Change"].max())
@@ -105,16 +105,8 @@ if run_button:
             st.write(f"📈 Correlation (lagged sentiment vs. % change): {correlation:.4f}")
 
         # ---------- Forecast ----------
-        # Option B: direct sentiment-only forecasting
-        sentiment_forecast_df = prepare_sentiment_for_forecast(result_df)
-        forecast_result = fit_and_forecast(
-            sentiment_forecast_df.rename(columns={"computed_score": "Pct_Change"}), 
-            steps=forecast_days
-        )
-        
-
         # After combined_df is built
-        results = fit_and_forecast(combined_df, steps=7)
+        results = fit_and_forecast(combined_df, steps=forecast_days)
 
         if results:
             st.subheader("📊 Forecast Results")

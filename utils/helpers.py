@@ -157,10 +157,10 @@ def compute_weighted_daily_sentiment(
         daily["Date"] = safe_utc_localize(daily["DateOnly"])
 
     if debug:
-        st.write("🔍 Per-day debug (first groups)")
-        st.dataframe(pd.DataFrame(group_debug))
+        print("🔍 Per-day debug (first groups)")
+        print(pd.DataFrame(group_debug).head(30))
         zero_days = daily.loc[daily["computed_score"].abs() < 1e-8, "DateOnly"].dt.strftime("%Y-%m-%d").tolist()
-        st.write(f"🔍 Days with 0 after aggregation: {zero_days}")
+        print(f"🔍 Days with 0 after aggregation: {zero_days}")
 
     return daily
 

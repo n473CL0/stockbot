@@ -25,8 +25,8 @@ def process_sentiment_data(
 
     df = articles_df.copy()
     if debug:
-        st.write(f"🔍 process_sentiment_data: starting with {len(df)} articles")
-        st.write("🔍 sample article columns:", df.columns.tolist())
+        print(f"🔍 process_sentiment_data: starting with {len(df)} articles")
+        print("🔍 sample article columns:", df.columns.tolist())
 
     # --- Ensure numeric sentiment_score ---
     if "sentiment_score" not in df.columns:
@@ -61,7 +61,7 @@ def process_sentiment_data(
     df = df.dropna(subset=["Date"]).reset_index(drop=True)
     after = len(df)
     if debug:
-        st.write(f"🔍 DEBUG: dropped {before - after} rows with invalid dates")
+        print(f"🔍 DEBUG: dropped {before - after} rows with invalid dates")
 
     # --- Daily weighted sentiment ---
     daily = compute_weighted_daily_sentiment(
@@ -166,7 +166,7 @@ def combine_data(
     if "Close" not in merged.columns:
         st.error("❌ Final merged DataFrame missing 'Close' column.")
     else:
-        st.write("✅ combine_data produced 'Close' column with dtype:", merged["Close"].dtype)
+        print("✅ combine_data produced 'Close' column with dtype:", merged["Close"].dtype)
 
     return merged
 

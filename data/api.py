@@ -356,7 +356,7 @@ def get_news_data(ticker: str, days: int = 30, decay: float = 0.95):
 
     filtered_df["sentiment_score"] = pd.to_numeric(filtered_df["sentiment"], errors="coerce").fillna(0.0)
 
-    st.write("🔍 DEBUG: Articles", filtered_df[["Title","Date","sentiment_score"]].head(10))
+    print("🔍 DEBUG: Articles", filtered_df[["Title","Date","sentiment_score"]].head(10))
 
     # === Sentiment classification ===
     if "sentiment" not in filtered_df.columns:
